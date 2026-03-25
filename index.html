@@ -782,7 +782,7 @@
     <hr class="divider">
 
     <button class="btn-generate" onclick="generateSlides()">▶ プレビュー生成</button>
-    <button class="btn-download" id="downloadBtn" onclick="downloadGif()">⬇ GIF動画をダウンロード</button>
+    <button class="btn-download" id="downloadBtn" onclick="downloadPNGs()">⬇ 画像をダウンロード（カルーセル用）</button>
 
   </div>
 
@@ -1210,16 +1210,10 @@ function togglePlay() {
   }
 }
 
-// ===== GIFダウンロード =====
-async function downloadGif() {
+// ===== PNG複数枚ダウンロード（カルーセル用）=====
+async function downloadPNGs() {
   if (totalSlides === 0) return alert('先にプレビューを生成してください');
 
-  // gifshot読み込み
-  if (typeof gifshot === 'undefined') {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.4.5/gifshot.min.js');
-  }
-
-  // html2canvas読み込み
   if (typeof html2canvas === 'undefined') {
     await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
   }
@@ -1231,57 +1225,37 @@ async function downloadGif() {
 
   try {
     const slides = document.querySelectorAll('#slideViewport .slide');
-    const images = [];
+    const titleBase = document.getElementById('titleInput').value.replace(/[^\w\u3040-\u9FFF]/g, '_').substring(0, 15) || 'reel';
 
     for (let i = 0; i < slides.length; i++) {
-      progText.textContent = `スライド ${i + 1}/${slides.length} をレンダリング中...`;
-      progBar.style.width = `${(i / slides.length) * 70}%`;
+      progText.textContent = `画像 ${i + 1}/${slides.length} を生成中...`;
+      progBar.style.width = `${((i + 1) / slides.length) * 100}%`;
 
-      // 一時的に表示して撮影
-      slides[i].classList.add('active');
-
-      await new Promise(r => setTimeout(r, 300));
+      // スライドを表示して撮影
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+      await new Promise(r => setTimeout(r, 400));
 
       const canvas = await html2canvas(document.getElementById('slideViewport'), {
-        scale: 1,
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         logging: false
       });
 
-      images.push(canvas.toDataURL('image/png'));
-      slides[i].classList.remove('active');
+      // ダウンロード
+      const a = document.createElement('a');
+      a.download = `yontan_${titleBase}_${String(i + 1).padStart(2, '0')}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+
+      await new Promise(r => setTimeout(r, 300));
     }
 
     // 元のスライドに戻す
-    showSlide(currentSlide);
+    showSlide(0);
 
-    progText.textContent = 'GIFを合成中...';
-    progBar.style.width = '80%';
-
-    gifshot.createGIF({
-      images: images,
-      gifWidth: 405,
-      gifHeight: 720,
-      interval: 2.5,
-      numFrames: images.length,
-      frameDuration: 1,
-      sampleInterval: 5
-    }, function(obj) {
-      if (!obj.error) {
-        progBar.style.width = '100%';
-        const a = document.createElement('a');
-        const title = document.getElementById('titleInput').value.replace(/[^\w\u3040-\u9FFF]/g, '_').substring(0, 20) || 'reel';
-        a.download = `goguynet_${title}.gif`;
-        a.href = obj.image;
-        a.click();
-        progText.textContent = '✅ ダウンロード完了！';
-        setTimeout(() => overlay.classList.remove('active'), 1500);
-      } else {
-        alert('GIF生成に失敗しました: ' + obj.errorMsg);
-        overlay.classList.remove('active');
-      }
-    });
+    progText.textContent = `✅ ${slides.length}枚の画像をダウンロードしました！`;
+    setTimeout(() => overlay.classList.remove('active'), 2000);
 
   } catch (err) {
     alert('エラー: ' + err.message);
