@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>号外NET → Instagram リールメーカー</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Oswald:wght@700&display=swap');
+
+  :root {
+    --red: #e8002d;
+    --dark: #111;
+    --mid: #333;
+    --light: #f5f5f0;
+    --accent: #ffe600;
+    --card-w: 405px;
+    --card-h: 720px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a1a;
+    color: #eee;
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--dark);
+    border-bottom: 3px solid var(--red);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  header .logo {
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    color: var(--red);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  header .arrow {
+    color: #555;
+    font-size: 18px;
+  }
+
+  header .logo2 {
+    font-size: 14px;
+    color: #aaa;
+    font-weight: 700;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* ===== 左パネル：入力 ===== */
+  .panel-left {
+    background: #111;
+    border-right: 1px solid #2a2a2a;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 8px;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 12px;
+    color: #888;
+    font-weight: 700;
+  }
+
+  input[type="text"], input[type="url"], textarea, select {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #eee;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 10px 12px;
+    width: 100%;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--red);
+  }
+
+  textarea { min-height: 80px; }
+
+  .url-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .url-row input { flex: 1; }
+
+  button {
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+
+  .btn-fetch {
+    background: var(--red);
+    color: #fff;
+    padding: 10px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .btn-fetch:hover { background: #c0001f; }
+  .btn-fetch:disabled { background: #555; cursor: not-allowed; }
+
+  .btn-generate {
+    background: var(--accent);
+    color: #111;
+    padding: 14px;
+    font-size: 15px;
+    width: 100%;
+    letter-spacing: 1px;
+  }
+
+  .btn-generate:hover { background: #e6cf00; transform: translateY(-1px); }
+
+  .btn-download {
+    background: #1a8a1a;
+    color: #fff;
+    padding: 14px;
+    font-size: 15px;
+    width: 100%;
+    display: none;
+  }
+
+  .btn-download:hover { background: #156e15; }
+
+  .status {
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: none;
+  }
+
+  .status.info { background: #1a2a3a; color: #7ab8f5; display: block; }
+  .status.error { background: #3a1a1a; color: #f57a7a; display: block; }
+  .status.success { background: #1a3a1a; color: #7af57a; display: block; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #2a2a2a;
+  }
+
+  /* カラーテーマ選択 */
+  .theme-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .theme-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .theme-btn.active { border-color: #fff; transform: scale(1.15); }
+
+  /* スライド枚数 */
+  .slide-count-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .slide-count-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--red);
+  }
+
+  .count-label {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--accent);
+    min-width: 30px;
+    text-align: right;
+  }
+
+  /* ===== 右パネル：プレビュー ===== */
+  .panel-right {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    overflow-y: auto;
+  }
+
+  .preview-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #555;
+    text-transform: uppercase;
+  }
+
+  .phone-frame {
+    background: #0a0a0a;
+    border-radius: 40px;
+    border: 8px solid #2a2a2a;
+    padding: 12px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+    position: relative;
+  }
+
+  .phone-frame::before {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 6px;
+    background: #2a2a2a;
+    border-radius: 3px;
+    margin: 0 auto 12px;
+  }
+
+  .slide-viewport {
+    width: var(--card-w);
+    height: var(--card-h);
+    overflow: hidden;
+    border-radius: 20px;
+    position: relative;
+    background: #000;
+  }
+
+  /* ===== スライドデザイン ===== */
+  .slide {
+    width: var(--card-w);
+    height: var(--card-h);
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .slide.active { opacity: 1; }
+
+  /* テーマ: RED（デフォルト） */
+  .theme-red .slide-header { background: #e8002d; }
+  .theme-red .slide-accent { color: #e8002d; }
+  .theme-red .slide-tag-bg { background: #e8002d; }
+  .theme-red .slide-cta { background: #e8002d; }
+
+  /* テーマ: DARK BLUE */
+  .theme-blue .slide-header { background: #0a2463; }
+  .theme-blue .slide-accent { color: #4a90e2; }
+  .theme-blue .slide-tag-bg { background: #0a2463; }
+  .theme-blue .slide-cta { background: #0a2463; }
+
+  /* テーマ: GREEN */
+  .theme-green .slide-header { background: #1a6b3c; }
+  .theme-green .slide-accent { color: #2da65e; }
+  .theme-green .slide-tag-bg { background: #1a6b3c; }
+  .theme-green .slide-cta { background: #1a6b3c; }
+
+  /* テーマ: DARK */
+  .theme-dark .slide-header { background: #111; }
+  .theme-dark .slide-accent { color: #ffe600; }
+  .theme-dark .slide-tag-bg { background: #333; }
+  .theme-dark .slide-cta { background: #222; }
+
+  /* スライド1: タイトルスライド */
+  .slide-1 {
+    background: var(--slide1-bg, #f5f5f0);
+  }
+
+  .slide-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .slide-brand {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    color: #fff;
+    letter-spacing: 2px;
+  }
+
+  .slide-area-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    opacity: 0.8;
+  }
+
+  .slide-image-area {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slide-image-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slide-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  .slide-title-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.85));
+    padding: 32px 20px 20px;
+  }
+
+  .slide-tag-bg {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .slide-title-text {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.35;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+
+  /* スライド2〜: テキストスライド */
+  .slide-content {
+    background: #fff;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slide-content-inner {
+    padding: 24px 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .slide-point-number {
+    font-family: 'Oswald', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.12;
+    color: #000;
+  }
+
+  .slide-point-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #111;
+    line-height: 1.4;
+  }
+
+  .slide-point-body {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.8;
+    flex: 1;
+  }
+
+  /* CTAスライド */
+  .slide-cta-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: #fff;
+    gap: 20px;
+  }
+
+  .slide-cta-icon {
+    font-size: 56px;
+  }
+
+  .slide-cta-main {
+    font-size: 24px;
+    font-weight: 900;
+    color: #111;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .slide-cta-sub {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .slide-cta-badge {
+    padding: 14px 28px;
+    border-radius: 100px;
+    font-size: 15px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+
+  .slide-footer {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #eee;
+    background: #fff;
+  }
+
+  .slide-footer-brand {
+    font-size: 11px;
+    font-weight: 700;
+    color: #bbb;
+  }
+
+  .slide-dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .slide-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ddd;
+    transition: all 0.3s;
+  }
+
+  .slide-dot.active {
+    background: #e8002d;
+    width: 14px;
+    border-radius: 3px;
+  }
+
+  /* ===== コントロール ===== */
+  .preview-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .nav-btn {
+    background: #2a2a2a;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-btn:hover { background: #3a3a3a; }
+
+  .slide-indicator {
+    font-size: 13px;
+    color: #666;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .play-btn {
+    background: var(--red);
+    color: #fff;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .play-btn:hover { background: #c0001f; }
+
+  .empty-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 16px;
+    color: #333;
+  }
+
+  .empty-icon { font-size: 48px; opacity: 0.3; }
+  .empty-text { font-size: 14px; opacity: 0.4; text-align: center; }
+
+  /* 画像アップロード */
+  .img-upload-area {
+    border: 2px dashed #333;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+
+  .img-upload-area:hover { border-color: var(--red); }
+  .img-upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .img-upload-text { font-size: 12px; color: #666; }
+  .img-preview-thumb { max-height: 80px; border-radius: 4px; margin-top: 8px; }
+
+  /* 追加ポイント */
+  .points-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .point-item {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .point-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .point-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 1px;
+  }
+
+  .btn-remove-point {
+    background: none;
+    color: #555;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 4px;
+  }
+
+  .btn-remove-point:hover { color: var(--red); }
+
+  .btn-add-point {
+    background: #1a1a1a;
+    border: 1px dashed #333;
+    color: #666;
+    padding: 10px;
+    font-size: 13px;
+    width: 100%;
+    border-radius: 6px;
+  }
+
+  .btn-add-point:hover { border-color: var(--red); color: var(--red); }
+
+  /* GIF生成中オーバーレイ */
+  .generating-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 1000;
+    display: none;
+  }
+
+  .generating-overlay.active { display: flex; }
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid #333;
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .generating-text {
+    font-size: 15px;
+    color: #eee;
+    font-weight: 700;
+  }
+
+  .progress-bar-wrap {
+    width: 300px;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--red);
+    transition: width 0.1s;
+    width: 0%;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">号外NET</span>
+  <span class="arrow">→</span>
+  <span class="logo2">Instagram リールメーカー</span>
+</header>
+
+<div class="container">
+
+  <!-- ===== 左パネル ===== -->
+  <div class="panel-left">
+
+    <!-- ブックマークレット説明 -->
+    <div style="background:#1a1200;border:1px solid #443300;border-radius:8px;padding:14px;">
+      <div class="section-title" style="color:#ffe600;margin-bottom:10px">⭐ ブックマークレット（推奨）</div>
+      <p style="font-size:12px;color:#bbb;line-height:1.7;margin-bottom:10px">
+        号外NETの記事ページで1クリックするだけで、タイトル・画像・本文を自動入力できます。
+      </p>
+      <div style="background:#111;border-radius:6px;padding:10px;margin-bottom:10px">
+        <div style="font-size:11px;color:#666;margin-bottom:6px">① 下のボタンをブックマークバーにドラッグ</div>
+        <a id="bookmarkletLink" href="#" style="display:inline-block;background:#ffe600;color:#111;font-weight:900;font-size:13px;padding:8px 16px;border-radius:6px;text-decoration:none;letter-spacing:1px">
+          📋 号外→リール
+        </a>
+      </div>
+      <div style="font-size:11px;color:#666;line-height:1.8">
+        ② 別タブで号外NETの<b style="color:#aaa">公開記事ページ</b>を開く<br>
+        ③ ブックマークレットをクリック → <b style="color:#aaa">「コピーしました」と出る</b><br>
+        ④ このタブに戻って下の緑ボタンを押す ↓
+      </div>
+      <button id="pasteBtn" onclick="pasteFromClipboard()" style="margin-top:10px;background:#1a6b3c;color:#fff;border:none;border-radius:6px;padding:11px 16px;font-size:14px;font-weight:700;width:100%;cursor:pointer;font-family:'Noto Sans JP',sans-serif">
+        📋 貼り付けて読み込む
+      </button>
+    </div>
+
+    <div>
+      <div class="section-title">または手動でURL入力</div>
+      <div class="input-group">
+        <label>記事URL（参照用）</label>
+        <div class="url-row">
+          <input type="url" id="articleUrl" placeholder="https://kobehigashinada.goguynet.jp/..." />
+          <button class="btn-fetch" id="fetchBtn" onclick="fetchArticle()">取得</button>
+        </div>
+        <div id="fetchStatus" class="status"></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-title">② 記事内容（自動入力 or 手動）</div>
+
+      <div class="input-group">
+        <label>記事タイトル</label>
+        <input type="text" id="titleInput" placeholder="例：東灘区に新しいカフェがオープン" />
+      </div>
+
+      <div class="input-group" style="margin-top:12px">
+        <label>エリアタグ（例：東灘区 / 御影）</label>
+        <input type="text" id="areaTag" placeholder="東灘区" value="東灘区" />
+      </div>
+
+      <div class="input-group" style="margin-top:12px">
+        <label>メイン画像（URLまたはアップロード）</label>
+        <input type="text" id="imageUrl" placeholder="https://..." />
+        <div class="img-upload-area" onclick="document.getElementById('imgFile').click()">
+          <input type="file" id="imgFile" accept="image/*" onchange="handleImgUpload(event)">
+          <div class="img-upload-text">📷 クリックして画像をアップロード</div>
+          <img id="imgThumb" class="img-preview-thumb" style="display:none">
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-title">③ ポイント（スライド内容）</div>
+      <div class="points-list" id="pointsList">
+        <!-- JSで生成 -->
+      </div>
+      <button class="btn-add-point" style="margin-top:8px" onclick="addPoint()">＋ ポイントを追加</button>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-title">④ デザイン設定</div>
+
+      <div class="input-group">
+        <label>カラーテーマ</label>
+        <div class="theme-selector" id="themeSelector">
+          <div class="theme-btn active" style="background:#e8002d" data-theme="red" onclick="setTheme('red',this)" title="レッド"></div>
+          <div class="theme-btn" style="background:#0a2463" data-theme="blue" onclick="setTheme('blue',this)" title="ネイビー"></div>
+          <div class="theme-btn" style="background:#1a6b3c" data-theme="green" onclick="setTheme('green',this)" title="グリーン"></div>
+          <div class="theme-btn" style="background:#111;border:2px solid #444" data-theme="dark" onclick="setTheme('dark',this)" title="ダーク"></div>
+        </div>
+      </div>
+
+      <div class="input-group" style="margin-top:12px">
+        <label>SNSアカウント名</label>
+        <input type="text" id="accountName" value="@yontan_kobe" />
+      </div>
+
+      <div class="input-group" style="margin-top:12px">
+        <label>CTAメッセージ</label>
+        <input type="text" id="ctaText" value="続きはプロフのリンクから👆" />
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <button class="btn-generate" onclick="generateSlides()">▶ プレビュー生成</button>
+    <button class="btn-download" id="downloadBtn" onclick="downloadGif()">⬇ GIF動画をダウンロード</button>
+
+  </div>
+
+  <!-- ===== 右パネル ===== -->
+  <div class="panel-right">
+    <div class="preview-label">INSTAGRAM PREVIEW（9:16）</div>
+
+    <div class="phone-frame">
+      <div class="slide-viewport" id="slideViewport">
+        <div class="empty-preview">
+          <div class="empty-icon">📱</div>
+          <div class="empty-text">左のフォームを入力して<br>「プレビュー生成」を押してください</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-controls" id="previewControls" style="display:none">
+      <button class="nav-btn" onclick="prevSlide()">‹</button>
+      <div class="slide-indicator" id="slideIndicator">1 / 1</div>
+      <button class="nav-btn" onclick="nextSlide()">›</button>
+      <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+    </div>
+
+    <div id="previewNote" style="font-size:12px;color:#444;text-align:center;display:none">
+      ※ GIFダウンロードは gifshot ライブラリを使用します（自動読み込み）
+    </div>
+
+  </div>
+</div>
+
+<!-- 生成中オーバーレイ -->
+<div class="generating-overlay" id="generatingOverlay">
+  <div class="spinner"></div>
+  <div class="generating-text" id="generatingText">GIFを生成中...</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+</div>
+
+<script>
+// ===== 状態管理 =====
+let currentTheme = 'red';
+let currentSlide = 0;
+let totalSlides = 0;
+let isPlaying = false;
+let playInterval = null;
+let uploadedImageDataUrl = null;
+let points = [
+  { title: '', body: '', img: '', imgData: '' },
+  { title: '', body: '', img: '', imgData: '' }
+];
+
+// ===== ブックマークレット生成（クリップボード方式）=====
+function buildBookmarklet() {
+  const code = `(function(){
+    var t=document.querySelector('h1.entry-title,h1.article-title,.article-title,h1')?.innerText?.trim()||document.title.replace(/\\s*[|｜\\-].*/,'').trim();
+    var i=document.querySelector('.eyecatch img,.entry-thumbnail img,.wp-post-image,article img,.post-thumbnail img')?.src||document.querySelector('meta[property="og:image"]')?.content||'';
+    var b=document.querySelector('.entry-content,.post-content,.article-body');
+    var pts=[];
+    if(b){var ps=Array.from(b.querySelectorAll('p')).filter(function(p){return p.innerText.trim().length>15;}).slice(0,4);ps.forEach(function(p){pts.push(p.innerText.trim().substring(0,120));});}
+    var url=location.href;
+    var json='REEL::'+JSON.stringify({t:t||'',i:i,url:url,pts:pts});
+    var ta=document.createElement('textarea');
+    ta.value=json;
+    ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta);
+    if(navigator.clipboard){navigator.clipboard.writeText(json).catch(function(){});}
+    alert('✅ 記事データをコピーしました！\\nリールメーカーに戻って\\n「📋 貼り付けて読み込む」を押してください。');
+  })();`;
+  const href = 'javascript:' + encodeURIComponent(code);
+  document.getElementById('bookmarkletLink').href = href;
+}
+
+// ===== クリップボードから読み込む =====
+async function pasteFromClipboard() {
+  const btn = document.getElementById('pasteBtn');
+  btn.textContent = '読み込み中...';
+  btn.disabled = true;
+
+  try {
+    let text = '';
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      text = await navigator.clipboard.readText();
+    }
+
+    if (!text.startsWith('REEL::')) {
+      // クリップボードAPIが使えない場合は手動貼り付けダイアログ
+      text = prompt('クリップボードの内容を貼り付けてください（Ctrl+V）:') || '';
+    }
+
+    if (!text.startsWith('REEL::')) {
+      throw new Error('記事データが見つかりません。先にブックマークレットを実行してください。');
+    }
+
+    const data = JSON.parse(text.replace('REEL::', ''));
+
+    if (data.t) document.getElementById('titleInput').value = data.t;
+    if (data.i) document.getElementById('imageUrl').value = data.i;
+    if (data.url) document.getElementById('articleUrl').value = data.url;
+
+    if (data.pts && data.pts.length > 0) {
+      points = data.pts.map(body => ({ title: '', body, img: '', imgData: '' }));
+      if (points.length < 2) points.push({ title: '', body: '', img: '', imgData: '' });
+      renderPointsList();
+    }
+
+    const status = document.getElementById('fetchStatus');
+    status.className = 'status success';
+    status.textContent = '✅ 記事データを読み込みました！内容を確認・編集してください。';
+
+  } catch(e) {
+    alert('エラー: ' + e.message);
+  }
+
+  btn.textContent = '📋 貼り付けて読み込む';
+  btn.disabled = false;
+}
+
+// ===== 初期化 =====
+document.addEventListener('DOMContentLoaded', () => {
+  buildBookmarklet();
+  renderPointsList();
+});
+
+// ===== ポイント管理 =====
+function renderPointsList() {
+  const list = document.getElementById('pointsList');
+  list.innerHTML = points.map((p, i) => `
+    <div class="point-item">
+      <div class="point-item-head">
+        <span class="point-num">POINT ${i + 1}</span>
+        <button class="btn-remove-point" onclick="removePoint(${i})">✕</button>
+      </div>
+      <input type="text" placeholder="見出し（例：場所・アクセス）"
+        value="${escHtml(p.title)}"
+        oninput="points[${i}].title=this.value" />
+      <textarea placeholder="内容（2〜3行程度）"
+        oninput="points[${i}].body=this.value">${escHtml(p.body)}</textarea>
+      <div style="margin-top:6px">
+        <div style="font-size:11px;color:#666;margin-bottom:4px">📷 このスライドの写真（任意）</div>
+        <input type="text" placeholder="画像URL（空白=写真なし）"
+          value="${escHtml(p.img)}"
+          oninput="points[${i}].img=this.value;points[${i}].imgData=''" />
+        <div class="img-upload-area" style="margin-top:4px" onclick="document.getElementById('pimg_${i}').click()">
+          <input type="file" id="pimg_${i}" accept="image/*" onchange="handlePointImg(event,${i})">
+          <div class="img-upload-text">クリックしてアップロード</div>
+          <img id="pimgThumb_${i}" class="img-preview-thumb" style="display:${p.imgData?'block':'none'}" src="${p.imgData||''}">
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addPoint() {
+  if (points.length >= 5) return alert('ポイントは最大5つです');
+  points.push({ title: '', body: '', img: '', imgData: '' });
+  renderPointsList();
+}
+
+function removePoint(i) {
+  if (points.length <= 1) return;
+  points.splice(i, 1);
+  renderPointsList();
+}
+
+function handlePointImg(e, idx) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    points[idx].imgData = ev.target.result;
+    points[idx].img = '';
+    const thumb = document.getElementById(`pimgThumb_${idx}`);
+    if (thumb) { thumb.src = ev.target.result; thumb.style.display = 'block'; }
+    const urlInput = e.target.closest('.point-item').querySelector('input[type="text"]');
+    // URL欄は2番目のinput
+  };
+  reader.readAsDataURL(file);
+}
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== テーマ =====
+function setTheme(theme, el) {
+  currentTheme = theme;
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function getThemeColor() {
+  const map = { red: '#e8002d', blue: '#0a2463', green: '#1a6b3c', dark: '#111' };
+  return map[currentTheme] || '#e8002d';
+}
+
+// ===== 画像アップロード =====
+function handleImgUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    uploadedImageDataUrl = ev.target.result;
+    const thumb = document.getElementById('imgThumb');
+    thumb.src = uploadedImageDataUrl;
+    thumb.style.display = 'block';
+    document.getElementById('imageUrl').value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== 記事取得 =====
+async function fetchArticle() {
+  const url = document.getElementById('articleUrl').value.trim();
+  if (!url) return;
+
+  const btn = document.getElementById('fetchBtn');
+  const status = document.getElementById('fetchStatus');
+  btn.disabled = true;
+  btn.textContent = '取得中...';
+  status.className = 'status info';
+  status.textContent = '記事を取得しています...（CORSにより取得できない場合は手動入力してください）';
+
+  try {
+    // CORS回避のためのプロキシを試みる
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+    const data = await res.json();
+    const html = data.contents;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // タイトル取得
+    const title = doc.querySelector('h1.entry-title, h1.article-title, h1, .post-title')?.textContent?.trim()
+      || doc.querySelector('title')?.textContent?.replace(/\s*[\|｜].*/, '').trim()
+      || '';
+
+    // 画像取得
+    const img = doc.querySelector('.eyecatch img, .entry-thumbnail img, .wp-post-image, article img')?.src
+      || doc.querySelector('meta[property="og:image"]')?.getAttribute('content')
+      || '';
+
+    // 本文取得
+    const bodyEl = doc.querySelector('.entry-content, .post-content, article .content, .article-body');
+    const bodyText = bodyEl?.innerText?.trim().substring(0, 300) || '';
+
+    if (title) document.getElementById('titleInput').value = title;
+    if (img) document.getElementById('imageUrl').value = img;
+
+    // 本文から自動ポイント生成
+    if (bodyText && points.every(p => !p.title && !p.body)) {
+      const sentences = bodyText.split(/[。\n]/).filter(s => s.trim().length > 10).slice(0, 2);
+      sentences.forEach((s, i) => {
+        if (points[i]) points[i].body = s.trim();
+      });
+      renderPointsList();
+    }
+
+    status.className = 'status success';
+    status.textContent = '✅ 取得成功！内容を確認・編集してください。';
+  } catch (err) {
+    status.className = 'status error';
+    status.textContent = '⚠️ 自動取得できませんでした。手動で入力してください。（CORS制限の可能性）';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '取得';
+}
+
+// ===== スライド生成 =====
+function generateSlides() {
+  const title = document.getElementById('titleInput').value || '記事タイトル';
+  const area = document.getElementById('areaTag').value || '東灘区';
+  const imgSrc = uploadedImageDataUrl || document.getElementById('imageUrl').value || '';
+  const account = document.getElementById('accountName').value || '@yontan_kobe';
+  const cta = document.getElementById('ctaText').value || '続きはプロフのリンクから👆';
+  const color = getThemeColor();
+
+  const viewport = document.getElementById('slideViewport');
+  viewport.innerHTML = '';
+
+  const validPoints = points.filter(p => p.title || p.body);
+  const slides = [];
+
+  // スライド1: タイトル
+  slides.push(makeTitleSlide(title, area, imgSrc, color, account));
+
+  // スライド2〜: ポイント
+  validPoints.forEach((p, i) => {
+    slides.push(makePointSlide(p, i + 1, color, account, validPoints.length + 2));
+  });
+
+  // 最終スライド: CTA
+  slides.push(makeCtaSlide(cta, area, color, account));
+
+  slides.forEach((s, i) => {
+    s.dataset.index = i;
+    viewport.appendChild(s);
+  });
+
+  totalSlides = slides.length;
+  currentSlide = 0;
+  showSlide(0);
+
+  document.getElementById('previewControls').style.display = 'flex';
+  document.getElementById('previewNote').style.display = 'block';
+  document.getElementById('downloadBtn').style.display = 'block';
+}
+
+function makeTitleSlide(title, area, imgSrc, color, account) {
+  const div = document.createElement('div');
+  div.className = `slide slide-1`;
+  div.style.background = '#f0f0eb';
+  div.innerHTML = `
+    <div class="slide-header" style="background:${color}">
+      <span class="slide-brand">号外NET 東灘</span>
+      <span class="slide-area-tag">${escHtml(area)}</span>
+    </div>
+    <div class="slide-image-area">
+      ${imgSrc
+        ? `<img src="${escHtml(imgSrc)}" alt="記事画像" onerror="this.parentNode.innerHTML='<div class=slide-image-placeholder>🏘️</div>'">`
+        : '<div class="slide-image-placeholder">🏘️</div>'}
+      <div class="slide-title-overlay">
+        <div class="slide-tag-bg" style="background:${color}">📰 新着情報</div>
+        <div class="slide-title-text">${escHtml(title)}</div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span class="slide-footer-brand">${escHtml(account)}</span>
+      <div class="slide-dots" id="dots-placeholder"></div>
+    </div>
+  `;
+  return div;
+}
+
+function makePointSlide(point, num, color, account, total) {
+  const div = document.createElement('div');
+  div.className = 'slide';
+  const imgSrc = point.imgData || point.img || '';
+
+  if (imgSrc) {
+    // 写真あり：タイトルスライドと同じレイアウト（写真大＋テキストオーバーレイ）
+    div.style.background = '#111';
+    div.innerHTML = `
+      <div class="slide-header" style="background:${color}">
+        <span class="slide-brand">号外NET 東灘</span>
+        <span class="slide-area-tag">POINT ${num}</span>
+      </div>
+      <div class="slide-image-area">
+        <img src="${escHtml(imgSrc)}" alt="写真" onerror="this.parentNode.innerHTML='<div class=slide-image-placeholder>🏘️</div>'">
+        <div class="slide-title-overlay">
+          <div class="slide-tag-bg" style="background:${color}">POINT ${String(num).padStart(2,'0')}</div>
+          <div class="slide-title-text">${escHtml(point.title) || 'ポイント' + num}</div>
+          ${point.body ? `<div style="font-size:13px;color:rgba(255,255,255,0.88);margin-top:8px;line-height:1.7">${escHtml(point.body)}</div>` : ''}
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="slide-footer-brand">${escHtml(account)}</span>
+        <span style="font-size:11px;color:#999">${num + 1} / ${total}</span>
+      </div>
+    `;
+  } else {
+    // 写真なし：テキストのみレイアウト
+    div.style.background = '#fff';
+    div.innerHTML = `
+      <div class="slide-header" style="background:${color}">
+        <span class="slide-brand">号外NET 東灘</span>
+        <span class="slide-area-tag">POINT ${num}</span>
+      </div>
+      <div class="slide-content">
+        <div class="slide-content-inner">
+          <div class="slide-point-number">${String(num).padStart(2,'0')}</div>
+          <div class="slide-point-title" style="color:${color}">${escHtml(point.title) || 'ポイント' + num}</div>
+          <div class="slide-point-body">${escHtml(point.body) || '内容をここに入力してください。'}</div>
+        </div>
+        <div class="slide-footer">
+          <span class="slide-footer-brand">${escHtml(account)}</span>
+          <span style="font-size:11px;color:#ccc">${num + 1} / ${total}</span>
+        </div>
+      </div>
+    `;
+  }
+  return div;
+}
+
+function makeCtaSlide(cta, area, color, account) {
+  const div = document.createElement('div');
+  div.className = 'slide';
+  div.style.background = '#fff';
+  div.innerHTML = `
+    <div class="slide-header" style="background:${color}">
+      <span class="slide-brand">号外NET 東灘</span>
+      <span class="slide-area-tag">${escHtml(area)}</span>
+    </div>
+    <div class="slide-cta-content">
+      <div class="slide-cta-icon">📰</div>
+      <div class="slide-cta-main">記事の全文は<br>こちらから読めます</div>
+      <div class="slide-cta-sub">${escHtml(cta)}</div>
+      <div class="slide-cta-badge" style="background:${color}">号外NET 東灘・灘</div>
+    </div>
+    <div class="slide-footer">
+      <span class="slide-footer-brand">${escHtml(account)}</span>
+      <span style="font-size:11px;color:#ccc">${escHtml(area)}</span>
+    </div>
+  `;
+  return div;
+}
+
+// ===== スライドナビ =====
+function showSlide(i) {
+  const slides = document.querySelectorAll('#slideViewport .slide');
+  slides.forEach((s, idx) => {
+    s.classList.toggle('active', idx === i);
+  });
+  currentSlide = i;
+  document.getElementById('slideIndicator').textContent = `${i + 1} / ${totalSlides}`;
+}
+
+function prevSlide() {
+  if (currentSlide > 0) showSlide(currentSlide - 1);
+}
+
+function nextSlide() {
+  if (currentSlide < totalSlides - 1) showSlide(currentSlide + 1);
+}
+
+function togglePlay() {
+  isPlaying = !isPlaying;
+  const btn = document.getElementById('playBtn');
+  if (isPlaying) {
+    btn.textContent = '⏸';
+    playInterval = setInterval(() => {
+      if (currentSlide < totalSlides - 1) {
+        showSlide(currentSlide + 1);
+      } else {
+        showSlide(0);
+      }
+    }, 2000);
+  } else {
+    btn.textContent = '▶';
+    clearInterval(playInterval);
+  }
+}
+
+// ===== GIFダウンロード =====
+async function downloadGif() {
+  if (totalSlides === 0) return alert('先にプレビューを生成してください');
+
+  // gifshot読み込み
+  if (typeof gifshot === 'undefined') {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.4.5/gifshot.min.js');
+  }
+
+  // html2canvas読み込み
+  if (typeof html2canvas === 'undefined') {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+  }
+
+  const overlay = document.getElementById('generatingOverlay');
+  const progText = document.getElementById('generatingText');
+  const progBar = document.getElementById('progressBar');
+  overlay.classList.add('active');
+
+  try {
+    const slides = document.querySelectorAll('#slideViewport .slide');
+    const images = [];
+
+    for (let i = 0; i < slides.length; i++) {
+      progText.textContent = `スライド ${i + 1}/${slides.length} をレンダリング中...`;
+      progBar.style.width = `${(i / slides.length) * 70}%`;
+
+      // 一時的に表示して撮影
+      slides[i].classList.add('active');
+
+      await new Promise(r => setTimeout(r, 300));
+
+      const canvas = await html2canvas(document.getElementById('slideViewport'), {
+        scale: 1,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+      });
+
+      images.push(canvas.toDataURL('image/png'));
+      slides[i].classList.remove('active');
+    }
+
+    // 元のスライドに戻す
+    showSlide(currentSlide);
+
+    progText.textContent = 'GIFを合成中...';
+    progBar.style.width = '80%';
+
+    gifshot.createGIF({
+      images: images,
+      gifWidth: 405,
+      gifHeight: 720,
+      interval: 2.5,
+      numFrames: images.length,
+      frameDuration: 1,
+      sampleInterval: 5
+    }, function(obj) {
+      if (!obj.error) {
+        progBar.style.width = '100%';
+        const a = document.createElement('a');
+        const title = document.getElementById('titleInput').value.replace(/[^\w\u3040-\u9FFF]/g, '_').substring(0, 20) || 'reel';
+        a.download = `goguynet_${title}.gif`;
+        a.href = obj.image;
+        a.click();
+        progText.textContent = '✅ ダウンロード完了！';
+        setTimeout(() => overlay.classList.remove('active'), 1500);
+      } else {
+        alert('GIF生成に失敗しました: ' + obj.errorMsg);
+        overlay.classList.remove('active');
+      }
+    });
+
+  } catch (err) {
+    alert('エラー: ' + err.message);
+    overlay.classList.remove('active');
+  }
+}
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = res;
+    s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+</script>
+</body>
+</html>
