@@ -674,26 +674,36 @@
   <!-- ===== 左パネル ===== -->
   <div class="panel-left">
 
-    <!-- ブックマークレット説明 -->
+    <!-- データ入力セクション -->
     <div style="background:#1a1200;border:1px solid #443300;border-radius:8px;padding:14px;">
-      <div class="section-title" style="color:#ffe600;margin-bottom:10px">⭐ ブックマークレット（推奨）</div>
+      <div class="section-title" style="color:#ffe600;margin-bottom:10px">⭐ 記事データを貼り付けて自動入力</div>
       <p style="font-size:12px;color:#bbb;line-height:1.7;margin-bottom:10px">
-        号外NETの記事ページで1クリックするだけで、タイトル・画像・本文を自動入力できます。
+        号外NETの記事ページで「号外→リール」をクリックすると表示されるテキストを、下の欄に貼り付けてください。
       </p>
+
+      <!-- ブックマークレットボタン -->
       <div style="background:#111;border-radius:6px;padding:10px;margin-bottom:10px">
-        <div style="font-size:11px;color:#666;margin-bottom:6px">① 下のボタンをブックマークバーにドラッグ</div>
+        <div style="font-size:11px;color:#666;margin-bottom:6px">① 下のボタンをブックマークバーにドラッグして登録</div>
         <a id="bookmarkletLink" href="#" style="display:inline-block;background:#ffe600;color:#111;font-weight:900;font-size:13px;padding:8px 16px;border-radius:6px;text-decoration:none;letter-spacing:1px">
           📋 号外→リール
         </a>
       </div>
-      <div style="font-size:11px;color:#666;line-height:1.8">
-        ② 別タブで号外NETの<b style="color:#aaa">公開記事ページ</b>を開く<br>
-        ③ ブックマークレットをクリック → <b style="color:#aaa">「コピーしました」と出る</b><br>
-        ④ このタブに戻って下の緑ボタンを押す ↓
+
+      <div style="font-size:11px;color:#666;line-height:1.8;margin-bottom:10px">
+        ② 号外NETの記事ページで「号外→リール」をクリック<br>
+        ③ 画面に出てきた <b style="color:#ffe600">REEL::から始まるテキスト</b> を全選択してコピー<br>
+        ④ 下の欄に貼り付けて「読み込む」を押す ↓
       </div>
-      <button id="pasteBtn" onclick="pasteFromClipboard()" style="margin-top:10px;background:#1a6b3c;color:#fff;border:none;border-radius:6px;padding:11px 16px;font-size:14px;font-weight:700;width:100%;cursor:pointer;font-family:'Noto Sans JP',sans-serif">
-        📋 貼り付けて読み込む
+
+      <!-- 貼り付けテキストエリア -->
+      <textarea id="reelPasteArea"
+        placeholder='ここに REEL::{"t":"..."} を貼り付けてください'
+        style="width:100%;min-height:80px;background:#0a0a0a;border:1px solid #443300;border-radius:6px;color:#ffe600;font-size:11px;padding:8px;font-family:monospace;resize:vertical;margin-bottom:8px"
+      ></textarea>
+      <button onclick="loadFromPasteArea()" style="background:#ffe600;color:#111;border:none;border-radius:6px;padding:11px 16px;font-size:14px;font-weight:900;width:100%;cursor:pointer;font-family:'Noto Sans JP',sans-serif">
+        ▶ 読み込む
       </button>
+      <div id="fetchStatus" class="status" style="margin-top:8px"></div>
     </div>
 
     <div>
@@ -704,7 +714,6 @@
           <input type="url" id="articleUrl" placeholder="https://kobehigashinada.goguynet.jp/..." />
           <button class="btn-fetch" id="fetchBtn" onclick="fetchArticle()">取得</button>
         </div>
-        <div id="fetchStatus" class="status"></div>
       </div>
     </div>
 
@@ -826,7 +835,7 @@ let points = [
   { title: '', body: '', img: '', imgData: '' }
 ];
 
-// ===== ブックマークレット生成（クリップボード方式）=====
+// ===== ブックマークレット生成（prompt表示方式）=====
 function buildBookmarklet() {
   const code = `(function(){
     var t=document.querySelector('h1.entry-title,h1.article-title,.article-title,h1')?.innerText?.trim()||document.title.replace(/\\s*[|｜\\-].*/,'').trim();
@@ -836,62 +845,44 @@ function buildBookmarklet() {
     if(b){var ps=Array.from(b.querySelectorAll('p')).filter(function(p){return p.innerText.trim().length>15;}).slice(0,4);ps.forEach(function(p){pts.push(p.innerText.trim().substring(0,120));});}
     var url=location.href;
     var json='REEL::'+JSON.stringify({t:t||'',i:i,url:url,pts:pts});
-    var ta=document.createElement('textarea');
-    ta.value=json;
-    ta.style.position='fixed';ta.style.opacity='0';
-    document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy');}catch(e){}
-    document.body.removeChild(ta);
-    if(navigator.clipboard){navigator.clipboard.writeText(json).catch(function(){});}
-    alert('✅ 記事データをコピーしました！\\nリールメーカーに戻って\\n「📋 貼り付けて読み込む」を押してください。');
+    prompt('全選択(Ctrl+A)→コピー(Ctrl+C)してリールメーカーに貼り付けてください:',json);
   })();`;
   const href = 'javascript:' + encodeURIComponent(code);
   document.getElementById('bookmarkletLink').href = href;
 }
 
-// ===== クリップボードから読み込む =====
-async function pasteFromClipboard() {
-  const btn = document.getElementById('pasteBtn');
-  btn.textContent = '読み込み中...';
-  btn.disabled = true;
+// ===== テキストエリアから読み込む =====
+function loadFromPasteArea() {
+  const raw = document.getElementById('reelPasteArea').value.trim();
+  const status = document.getElementById('fetchStatus');
 
+  if (!raw) {
+    status.className = 'status error';
+    status.textContent = '⚠️ テキストが入力されていません。';
+    return;
+  }
+  if (!raw.startsWith('REEL::')) {
+    status.className = 'status error';
+    status.textContent = '⚠️ REEL:: から始まるテキストを貼り付けてください。';
+    return;
+  }
   try {
-    let text = '';
-    if (navigator.clipboard && navigator.clipboard.readText) {
-      text = await navigator.clipboard.readText();
-    }
-
-    if (!text.startsWith('REEL::')) {
-      // クリップボードAPIが使えない場合は手動貼り付けダイアログ
-      text = prompt('クリップボードの内容を貼り付けてください（Ctrl+V）:') || '';
-    }
-
-    if (!text.startsWith('REEL::')) {
-      throw new Error('記事データが見つかりません。先にブックマークレットを実行してください。');
-    }
-
-    const data = JSON.parse(text.replace('REEL::', ''));
-
+    const data = JSON.parse(raw.replace('REEL::', ''));
     if (data.t) document.getElementById('titleInput').value = data.t;
     if (data.i) document.getElementById('imageUrl').value = data.i;
     if (data.url) document.getElementById('articleUrl').value = data.url;
-
     if (data.pts && data.pts.length > 0) {
       points = data.pts.map(body => ({ title: '', body, img: '', imgData: '' }));
       if (points.length < 2) points.push({ title: '', body: '', img: '', imgData: '' });
       renderPointsList();
     }
-
-    const status = document.getElementById('fetchStatus');
+    document.getElementById('reelPasteArea').value = '';
     status.className = 'status success';
-    status.textContent = '✅ 記事データを読み込みました！内容を確認・編集してください。';
-
+    status.textContent = '✅ 読み込みました！内容を確認・編集してください。';
   } catch(e) {
-    alert('エラー: ' + e.message);
+    status.className = 'status error';
+    status.textContent = '⚠️ 読み込み失敗。もう一度コピーして貼り付けてください。';
   }
-
-  btn.textContent = '📋 貼り付けて読み込む';
-  btn.disabled = false;
 }
 
 // ===== 初期化 =====
