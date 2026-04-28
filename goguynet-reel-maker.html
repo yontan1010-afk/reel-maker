@@ -6,414 +6,163 @@
 <title>神戸 よんたん → Instagram リールメーカー</title>
 <style>
   :root {
-    --red: #e8001c;
-    --yellow: #f5c200;
-    --dark: #111;
-    --mid: #1e1e1e;
-    --card: #252525;
-    --border: #333;
-    --text: #eee;
-    --muted: #888;
-    --green: #22c55e;
-    --blue: #3b82f6;
+    --red: #e8001c; --yellow: #f5c200; --dark: #111; --mid: #1e1e1e;
+    --card: #252525; --border: #333; --text: #eee; --muted: #888;
+    --green: #22c55e; --blue: #3b82f6;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--dark); color: var(--text); font-family: 'Helvetica Neue', sans-serif; min-height: 100vh; }
-
-  header {
-    background: var(--mid);
-    border-bottom: 2px solid var(--red);
-    padding: 14px 20px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  header .logo { color: var(--red); font-weight: 900; font-size: 1.1rem; letter-spacing: -0.5px; }
+  header { background: var(--mid); border-bottom: 2px solid var(--red); padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+  header .logo { color: var(--red); font-weight: 900; font-size: 1.1rem; }
   header .arrow { color: var(--muted); }
   header .title { color: #fff; font-size: 0.95rem; font-weight: 700; }
-
-  .container { max-width: 540px; margin: 0 auto; padding: 20px 16px 60px; }
-
-  /* ===== SECTION CARD ===== */
-  .section {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-    margin-bottom: 16px;
-  }
-  .section-header {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 14px;
-  }
-  .section-num {
-    background: var(--red);
-    color: #fff;
-    font-size: 0.7rem;
-    font-weight: 900;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
+  .container { max-width: 540px; margin: 0 auto; padding: 20px 16px 80px; }
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .section-num { background: var(--red); color: #fff; font-size: 0.7rem; font-weight: 900; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .section-label { font-size: 0.85rem; font-weight: 700; color: var(--yellow); }
   .section-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-
-  /* ===== BOOKMARKLET ===== */
-  .bm-box {
-    background: #1a1a1a;
-    border: 1px dashed #444;
-    border-radius: 8px;
-    padding: 14px;
-    margin-bottom: 14px;
-  }
-  .bm-steps { font-size: 0.75rem; color: var(--muted); margin-bottom: 10px; line-height: 1.7; }
-  .bm-steps span { color: #ccc; }
-  #bmBtn {
-    display: inline-block;
-    background: var(--yellow);
-    color: #000;
-    font-weight: 900;
-    font-size: 0.85rem;
-    padding: 9px 18px;
-    border-radius: 6px;
-    text-decoration: none;
-    cursor: grab;
-    border: none;
-  }
-
-  /* ===== TEXT INPUT ===== */
-  textarea {
-    width: 100%;
-    background: #111;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: #ff0;
-    font-size: 0.75rem;
-    font-family: monospace;
-    padding: 10px;
-    resize: vertical;
-    min-height: 90px;
-    line-height: 1.5;
-  }
+  .bm-box { background: #1a1a1a; border: 1px dashed #444; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+  .bm-steps { font-size: 0.75rem; color: var(--muted); margin-bottom: 10px; line-height: 1.9; }
+  .bm-steps b { color: var(--yellow); }
+  #bmBtn { display: inline-block; background: var(--yellow); color: #000; font-weight: 900; font-size: 0.85rem; padding: 9px 18px; border-radius: 6px; text-decoration: none; cursor: grab; border: none; }
+  textarea { width: 100%; background: #111; border: 1px solid var(--border); border-radius: 8px; color: #ff0; font-size: 0.75rem; font-family: monospace; padding: 10px; resize: vertical; min-height: 70px; line-height: 1.5; }
   textarea::placeholder { color: #444; }
-
-  /* ===== BUTTONS ===== */
-  .btn {
-    width: 100%;
-    padding: 13px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
+  .btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: opacity 0.15s; }
   .btn:active { opacity: 0.8; }
   .btn-yellow { background: var(--yellow); color: #000; }
-  .btn-red { background: var(--red); color: #fff; }
   .btn-green { background: var(--green); color: #000; }
-  .btn-blue { background: var(--blue); color: #fff; }
-  .btn-ghost {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; font-weight: 600; }
   .btn-sm { padding: 8px 14px; font-size: 0.8rem; width: auto; }
-
-  /* ===== STATUS ===== */
-  .status {
-    font-size: 0.8rem;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-top: 10px;
-    display: none;
-  }
+  .status { font-size: 0.8rem; padding: 8px 12px; border-radius: 6px; margin-top: 10px; display: none; }
   .status.ok { background: #1a3a1a; color: #4ade80; border: 1px solid #166534; display: block; }
   .status.err { background: #3a1a1a; color: #f87171; border: 1px solid #991b1b; display: block; }
-
-  /* ===== OR DIVIDER ===== */
-  .or-row { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
-  .or-line { flex: 1; height: 1px; background: var(--border); }
-  .or-text { font-size: 0.7rem; color: var(--muted); font-weight: 700; }
-
-  /* ===== URL ROW ===== */
-  .url-row { display: flex; gap: 8px; }
-  .url-row input {
-    flex: 1;
-    background: #111;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 0.8rem;
-    padding: 10px 12px;
-  }
-  .url-row input::placeholder { color: #444; }
-
-  /* ===== FORM FIELDS ===== */
   label { font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 5px; margin-top: 12px; }
   label:first-of-type { margin-top: 0; }
-  input[type=text] {
-    width: 100%;
-    background: #111;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 0.85rem;
-    padding: 10px 12px;
-  }
+  input[type=text] { width: 100%; background: #111; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem; padding: 10px 12px; }
   input[type=text]::placeholder { color: #444; }
-
-  /* ===== SLIDE LIST ===== */
-  #slideList { margin-top: 14px; }
-  .slide-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #1a1a1a;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-  }
-  .slide-thumb {
-    width: 38px; height: 52px;
-    border-radius: 4px;
-    object-fit: cover;
-    flex-shrink: 0;
-    background: #333;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.2rem;
-  }
-  .slide-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
-  .slide-info { flex: 1; min-width: 0; }
-  .slide-name { font-size: 0.78rem; font-weight: 700; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .slide-tag { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
-  .slide-del { background: none; border: none; color: #555; font-size: 1rem; cursor: pointer; padding: 4px; flex-shrink: 0; }
-  .slide-del:hover { color: var(--red); }
-
-  /* ===== CROP MODAL ===== */
-  #cropModal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.92);
-    z-index: 999;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  #cropModal.open { display: flex; }
-  .crop-title { color: var(--yellow); font-weight: 900; font-size: 1rem; margin-bottom: 12px; }
-  .crop-hint { color: var(--muted); font-size: 0.75rem; margin-bottom: 14px; text-align: center; }
-  #cropWrapper {
-    position: relative;
-    overflow: hidden;
-    background: #000;
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    cursor: crosshair;
-    max-width: 100%;
-    max-height: 55vh;
-    touch-action: none;
-  }
-  #cropImg { display: block; max-width: 100%; max-height: 55vh; user-select: none; pointer-events: none; }
-  #cropOverlay {
-    position: absolute;
-    top: 0; left: 0;
-    border: 2px solid var(--yellow);
-    background: rgba(245,194,0,0.08);
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
-    pointer-events: none;
-  }
-  .crop-ratio-btns { display: flex; gap: 8px; margin-top: 14px; }
-  .ratio-btn {
-    padding: 7px 14px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: #1a1a1a;
-    color: var(--muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .ratio-btn.active { border-color: var(--yellow); color: var(--yellow); background: #2a2600; }
-  .crop-actions { display: flex; gap: 10px; margin-top: 14px; width: 100%; max-width: 400px; }
-  .crop-actions .btn { flex: 1; }
-
-  /* ===== IMAGE UPLOAD AREA ===== */
-  .upload-area {
-    border: 2px dashed #444;
-    border-radius: 10px;
-    padding: 24px 16px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    position: relative;
-  }
+  .upload-area { border: 2px dashed #444; border-radius: 10px; padding: 24px 16px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; }
   .upload-area:hover { border-color: var(--blue); background: #131a2a; }
   .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
   .upload-icon { font-size: 2rem; margin-bottom: 8px; }
   .upload-text { font-size: 0.82rem; color: var(--muted); }
   .upload-text b { color: #ccc; }
-
-  /* ===== EXPORT ===== */
-  #exportSection { display: none; }
-  .export-preview {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 14px;
-  }
-  .export-slide {
-    flex-shrink: 0;
-    width: 72px;
-    text-align: center;
-  }
-  .export-slide img {
-    width: 72px; height: 96px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 2px solid var(--border);
-  }
-  .export-slide .slide-n { font-size: 0.65rem; color: var(--muted); margin-top: 4px; }
-
-  .tag { font-size: 0.68rem; background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 4px; padding: 2px 8px; color: #999; display: inline-block; }
-  .tag.hl { background: #2a2600; border-color: #5a4a00; color: var(--yellow); }
-
-  #toast {
-    position: fixed;
-    bottom: 24px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--green);
-    color: #000;
-    font-weight: 800;
-    font-size: 0.85rem;
-    padding: 10px 24px;
-    border-radius: 100px;
-    opacity: 0;
-    transition: all 0.3s;
-    pointer-events: none;
-    z-index: 9999;
-  }
+  #slideList { margin-top: 14px; }
+  .slide-item { display: flex; align-items: center; gap: 10px; background: #1a1a1a; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+  .slide-item.last { border-color: var(--yellow); }
+  .slide-thumb { width: 38px; height: 52px; border-radius: 4px; flex-shrink: 0; background: #333; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+  .slide-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .slide-info { flex: 1; min-width: 0; }
+  .slide-name { font-size: 0.78rem; font-weight: 700; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slide-tag { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+  .slide-tag.yl { color: var(--yellow); }
+  .slide-del { background: none; border: none; color: #555; font-size: 1rem; cursor: pointer; padding: 4px; flex-shrink: 0; }
+  .slide-del:hover { color: var(--red); }
+  #cropModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 999; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+  #cropModal.open { display: flex; }
+  .crop-title { color: var(--yellow); font-weight: 900; font-size: 1rem; margin-bottom: 8px; }
+  .crop-hint { color: var(--muted); font-size: 0.75rem; margin-bottom: 14px; text-align: center; }
+  #cropWrapper { position: relative; overflow: hidden; background: #000; border: 2px solid var(--border); border-radius: 8px; cursor: crosshair; max-width: 100%; max-height: 52vh; touch-action: none; }
+  #cropImg { display: block; max-width: 100%; max-height: 52vh; user-select: none; pointer-events: none; }
+  #cropOverlay { position: absolute; top: 0; left: 0; border: 2px solid var(--yellow); background: rgba(245,194,0,0.08); box-shadow: 0 0 0 9999px rgba(0,0,0,0.55); pointer-events: none; }
+  .crop-ratio-btns { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; justify-content: center; }
+  .ratio-btn { padding: 7px 14px; border: 1px solid var(--border); border-radius: 6px; background: #1a1a1a; color: var(--muted); font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+  .ratio-btn.active { border-color: var(--yellow); color: var(--yellow); background: #2a2600; }
+  .crop-actions { display: flex; gap: 10px; margin-top: 14px; width: 100%; max-width: 400px; }
+  .crop-actions .btn { flex: 1; }
+  .export-preview { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; }
+  .export-slide { flex-shrink: 0; width: 72px; text-align: center; }
+  .export-slide img { width: 72px; height: 96px; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); }
+  .export-slide.last img { border-color: var(--yellow); }
+  .export-slide .sn { font-size: 0.65rem; color: var(--muted); margin-top: 4px; }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--green); color: #000; font-weight: 800; font-size: 0.85rem; padding: 10px 24px; border-radius: 100px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 9999; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
+  #exportSection { display: none; }
   .gap { margin-top: 8px; }
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">神戸 よんたん</div>
   <div class="arrow">→</div>
   <div class="title">Instagram リールメーカー</div>
 </header>
-
 <div class="container">
 
-  <!-- ===== STEP 1: 号外NET自動読み込み ===== -->
   <div class="section">
     <div class="section-header">
       <div class="section-num">1</div>
       <div>
-        <div class="section-label">⭐ リード画像（1枚目）の記事データを読み込む</div>
-        <div class="section-sub">号外NETのブックマークレットを使ってデータを取得</div>
+        <div class="section-label">📋 記事タイトル・URLを自動取得</div>
+        <div class="section-sub">号外NETのブックマークレットでタイトルとURLだけ取得します</div>
       </div>
     </div>
-
     <div class="bm-box">
-      <div class="bm-steps">
-        <span>① 下のボタンをブックマークバーにドラッグして登録</span>
-      </div>
+      <div class="bm-steps"><b>① 下のボタンをブックマークバーにドラッグして登録</b></div>
       <a id="bmBtn" href="">📋 号外→リール</a>
       <div class="bm-steps" style="margin-top:10px;">
-        <span>② 号外NETの記事ページで「号外→リール」をクリック</span><br>
-        <span>③ 画面に出てきた <b style="color:var(--yellow)">REEL::から始まるテキスト</b> を全選択してコピー</span><br>
-        <span>④ 下の欄に貼り付けて「読み込む」を押す ↓</span>
+        <b>② 号外NETの記事ページで「号外→リール」をクリック</b><br>
+        <span style="color:#ccc">③ 出てきたREEL::テキストを全選択（Ctrl+A）→コピー（Ctrl+C）</span><br>
+        <span style="color:#ccc">④ 下の欄に貼り付けて「読み込む」を押す ↓</span>
       </div>
-      <textarea id="pasteArea" rows="4" placeholder="REEL::{&quot;t&quot;:&quot;記事タイトル&quot;, &quot;i&quot;:&quot;https://...&quot;, ...}"></textarea>
+      <textarea id="pasteArea" rows="3" placeholder='REEL::{"t":"記事タイトル", "url":"https://...", ...}'></textarea>
       <button class="btn btn-yellow gap" onclick="parseReel()">▶ 読み込む</button>
       <div id="fetchStatus" class="status"></div>
     </div>
-
-    <div class="or-row">
-      <div class="or-line"></div>
-      <div class="or-text">または手動でURL入力</div>
-      <div class="or-line"></div>
-    </div>
-    <div style="color:var(--yellow);font-size:0.75rem;margin-bottom:6px;">また手動でURL入力</div>
-    <div class="url-row">
-      <input type="text" id="manualUrl" placeholder="https://kobehigashinada.goguynet.jp/...">
-      <button class="btn btn-red btn-sm" onclick="fetchByUrl()">取得</button>
-    </div>
-    <div id="urlStatus" class="status"></div>
   </div>
 
-  <!-- ===== STEP 2: 記事情報 ===== -->
   <div class="section">
     <div class="section-header">
       <div class="section-num">2</div>
-      <div>
-        <div class="section-label">記事内容（自動入力 OR 手動）</div>
-      </div>
+      <div><div class="section-label">記事情報（自動入力 or 手動）</div></div>
     </div>
     <label>記事タイトル</label>
     <input type="text" id="titleInput" placeholder="例：東灘区に新しいカフェがオープン">
-    <label>リード画像URL（号外NETの画像）</label>
-    <input type="text" id="imgUrlInput" placeholder="https://...jpg">
-    <label>記事URL</label>
+    <label>記事URL（最終スライドのリンク先になります）</label>
     <input type="text" id="articleUrl" placeholder="https://kobehigashinada.goguynet.jp/...">
   </div>
 
-  <!-- ===== STEP 3: 追加画像（手動アップロード・トリミング） ===== -->
   <div class="section">
     <div class="section-header">
       <div class="section-num">3</div>
       <div>
-        <div class="section-label">📷 追加画像をアップロード（2枚目以降）</div>
-        <div class="section-sub">横長写真も縦長に自動トリミングできます</div>
+        <div class="section-label">📷 写真をアップロード（全枚手動）</div>
+        <div class="section-sub">横長写真はトリミング画面が自動で開きます</div>
       </div>
     </div>
-
-    <div class="upload-area" id="uploadArea">
-      <input type="file" accept="image/*" multiple onchange="handleFiles(this.files)">
+    <div class="upload-area">
+      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)">
       <div class="upload-icon">🖼️</div>
-      <div class="upload-text"><b>クリックして写真を選ぶ</b><br>（複数選択OK・横長写真はトリミング画面が開きます）</div>
+      <div class="upload-text"><b>クリックして写真を選ぶ</b><br>（複数選択OK・横長→自動トリミング）</div>
     </div>
-
     <div id="slideList"></div>
   </div>
 
-  <!-- ===== STEP 4: ハッシュタグ ===== -->
   <div class="section">
     <div class="section-header">
       <div class="section-num">4</div>
       <div><div class="section-label">ハッシュタグ</div></div>
     </div>
-    <textarea id="hashtagInput" rows="3" placeholder="#東灘区 #神戸 #号外NET">#東灘区 #灘区 #神戸 #号外NET</textarea>
+    <textarea id="hashtagInput" rows="3">#東灘区 #灘区 #神戸 #号外NET</textarea>
   </div>
 
-  <!-- ===== STEP 5: スライド確認 & 出力 ===== -->
   <div class="section">
     <div class="section-header">
       <div class="section-num">5</div>
-      <div><div class="section-label">確認 & テキストコピー</div></div>
+      <div><div class="section-label">確認 & 出力</div></div>
     </div>
-    <button class="btn btn-green" onclick="buildAndCopy()">✅ Instagramキャプションをコピー</button>
+    <button class="btn btn-green" onclick="buildAndCopy()">✅ 最終スライド生成 & キャプションをコピー</button>
     <div id="copyStatus" class="status"></div>
   </div>
 
   <div id="exportSection" class="section">
-    <div class="section-label" style="color:var(--yellow);margin-bottom:10px;">📸 スライドプレビュー</div>
+    <div class="section-label" style="color:var(--yellow);margin-bottom:10px;">📸 スライドプレビュー（最後🔗がリンクスライド）</div>
     <div class="export-preview" id="exportPreview"></div>
     <button class="btn btn-ghost" onclick="downloadAll()">⬇ 全画像をまとめてダウンロード</button>
   </div>
 
-</div><!-- /container -->
+</div>
 
-<!-- ===== CROP MODAL ===== -->
 <div id="cropModal">
   <div class="crop-title">✂ トリミング（縦長に調整）</div>
   <div class="crop-hint">黄色の枠をドラッグして位置を調整してください</div>
@@ -422,7 +171,7 @@
     <div id="cropOverlay"></div>
   </div>
   <div class="crop-ratio-btns">
-    <button class="ratio-btn active" onclick="setRatio(4,5,this)">4:5 (推奨)</button>
+    <button class="ratio-btn active" onclick="setRatio(4,5,this)">4:5（推奨）</button>
     <button class="ratio-btn" onclick="setRatio(9,16,this)">9:16</button>
     <button class="ratio-btn" onclick="setRatio(1,1,this)">1:1</button>
   </div>
@@ -432,103 +181,45 @@
   </div>
 </div>
 
-<div id="toast">コピーしました！</div>
-
+<div id="toast">完了！</div>
 <canvas id="offCanvas" style="display:none"></canvas>
 
 <script>
-/* ============================================================
-   DATA
-============================================================ */
-let slides = []; // { id, label, dataUrl, isLead }
-let cropQueue = []; // pending files for crop
-let cropResolve = null;
+let slides = [];
+let cropCallback = null;
 let cropW = 4, cropH = 5;
-let dragStartX = 0, dragStartY = 0, overlayX = 0, overlayY = 0;
-let isDragging = false;
+let overlayX = 0, overlayY = 0, overlayW = 0, overlayH = 0;
+let cropDispW = 0, cropDispH = 0, cropNatW = 0, cropNatH = 0, cropImgEl = null;
+let isDragging = false, dragSX = 0, dragSY = 0;
 const offCanvas = document.getElementById('offCanvas');
 const offCtx = offCanvas.getContext('2d');
 
-/* ============================================================
-   BOOKMARKLET
-============================================================ */
 function buildBookmarklet() {
-  const code = `javascript:(function(){
-var t=document.querySelector('h1.entry-title,h1.article-title,.article-title,h1')?.innerText?.trim()||document.title.replace(/\\s*[|｜\\-–].*号外.*/,'').trim();
-var i='';
-var imgs=document.querySelectorAll('.entry-content img,.article-body img,article img,.post-content img');
-if(imgs.length>0){i=imgs[0].src;}
-if(!i){var og=document.querySelector('meta[property="og:image"]');if(og)i=og.content;}
-var u=location.href;
-var pts=[];
-document.querySelectorAll('.entry-tags a,.post-tags a,a[rel="tag"],.tags a').forEach(function(a){pts.push(a.textContent.trim());});
-var out='REEL::'+JSON.stringify({t:t,i:i,url:u,pts:pts});
-var w=window.open('','_blank','width=560,height=260');
-w.document.write('<html><head><meta charset="utf-8"><style>body{background:#111;color:#ff0;font-family:monospace;padding:16px;font-size:12px;}textarea{width:100%;height:130px;background:#000;color:#ff0;border:1px solid #555;padding:8px;font-size:11px;border-radius:4px;}p{color:#aaa;margin-bottom:8px;font-size:11px;}</style></head><body><p>① 全選択（Ctrl+A）→ コピー（Ctrl+C）して、リールメーカーに貼り付けてください</p><textarea id="d" onclick="this.select()">'+out.replace(/'/g,"&#39;")+'</textarea></body></html>');
-w.document.getElementById('d').select();
-})();`;
+  const code = `javascript:(function(){var t=document.querySelector('h1.entry-title,h1.article-title,.article-title,h1')?.innerText?.trim()||document.title.replace(/\\s*[|｜\\-\\u2013].*\\u53f7\\u5916.*/,'').trim();var u=location.href;var pts=[];document.querySelectorAll('.entry-tags a,.post-tags a,a[rel="tag"],.tags a').forEach(function(a){pts.push(a.textContent.trim());});var out='REEL::'+JSON.stringify({t:t,url:u,pts:pts});var w=window.open('','_blank','width=560,height=220');w.document.write('<html><head><meta charset="utf-8"><style>body{background:#111;color:#ff0;font-family:monospace;padding:16px;font-size:12px}textarea{width:100%;height:100px;background:#000;color:#ff0;border:1px solid #555;padding:8px;font-size:11px;border-radius:4px}p{color:#aaa;margin-bottom:8px;font-size:11px}</style></head><body><p>① 全選択（Ctrl+A）→ コピー（Ctrl+C）→ リールメーカーに貼り付け</p><textarea onclick="this.select()">'+out.replace(/\x27/g,"&#39;")+'</textarea></body></html>');})();`;
   document.getElementById('bmBtn').href = code;
 }
 
-/* ============================================================
-   PARSE REEL DATA
-============================================================ */
 function parseReel() {
   const raw = document.getElementById('pasteArea').value.trim();
   const st = document.getElementById('fetchStatus');
-  if (!raw.startsWith('REEL::')) {
-    st.className='status err'; st.textContent='⚠ REEL::から始まるテキストを貼り付けてください。'; return;
-  }
+  if (!raw.startsWith('REEL::')) { st.className='status err'; st.textContent='⚠ REEL::から始まるテキストを貼り付けてください。'; return; }
   try {
-    const json = raw.slice(6);
-    const d = JSON.parse(json);
+    const d = JSON.parse(raw.slice(6));
     document.getElementById('titleInput').value = d.t || '';
-    document.getElementById('imgUrlInput').value = d.i || '';
     document.getElementById('articleUrl').value = d.url || '';
     if (d.pts && d.pts.length) {
-      const existing = document.getElementById('hashtagInput').value;
-      const newTags = d.pts.map(p=>'#'+p).join(' ');
-      document.getElementById('hashtagInput').value = newTags + ' #東灘区 #神戸 #号外NET';
+      document.getElementById('hashtagInput').value = d.pts.map(p=>'#'+p).join(' ') + ' #東灘区 #神戸 #号外NET';
     }
-    // Add lead slide
-    if (d.i) {
-      addLeadSlide(d.i, d.t);
-    }
-    st.className='status ok'; st.textContent='✅ 読み込みました！記事タイトル・画像・URLが入力されました。';
-  } catch(e) {
-    st.className='status err'; st.textContent='⚠ 読み込みに失敗しました。テキストを全部コピーできていますか？';
-  }
+    st.className='status ok'; st.textContent='✅ タイトルとURLを読み込みました！写真をアップロードしてください。';
+  } catch(e) { st.className='status err'; st.textContent='⚠ 読み込み失敗。テキストを全部コピーできていますか？'; }
 }
 
-function fetchByUrl() {
-  const url = document.getElementById('manualUrl').value.trim();
-  const st = document.getElementById('urlStatus');
-  if (!url) { st.className='status err'; st.textContent='URLを入力してください。'; return; }
-  document.getElementById('articleUrl').value = url;
-  st.className='status ok'; st.textContent='✅ URLを設定しました。タイトルと画像は手動で入力してください。';
-}
-
-/* ============================================================
-   LEAD SLIDE (from URL)
-============================================================ */
-function addLeadSlide(imgUrl, title) {
-  // Remove existing lead if any
-  slides = slides.filter(s => !s.isLead);
-  const id = 'lead_' + Date.now();
-  slides.unshift({ id, label: 'リード（号外NET）', dataUrl: imgUrl, isLead: true, isExternal: true });
-  renderSlideList();
-}
-
-/* ============================================================
-   FILE UPLOAD & CROP QUEUE
-============================================================ */
 function handleFiles(files) {
-  const arr = Array.from(files);
-  // For each file, check if landscape → open crop; else add directly
-  processNext(arr);
+  processQueue(Array.from(files));
+  document.getElementById('fileInput').value = '';
 }
 
-function processNext(arr) {
+function processQueue(arr) {
   if (!arr.length) { renderSlideList(); updateExport(); return; }
   const file = arr.shift();
   const reader = new FileReader();
@@ -536,13 +227,11 @@ function processNext(arr) {
     const src = e.target.result;
     const img = new Image();
     img.onload = () => {
-      if (img.naturalWidth > img.naturalHeight) {
-        // Landscape → crop
-        openCrop(src, img, () => processNext(arr));
+      if (img.naturalWidth > img.naturalHeight * 1.1) {
+        openCrop(src, img, dataUrl => { slides.push({id:'s'+Date.now()+Math.random(), label:file.name, dataUrl}); processQueue(arr); });
       } else {
-        // Already portrait → add directly
-        slides.push({ id: 'img_'+Date.now(), label: file.name, dataUrl: src, isLead: false });
-        processNext(arr);
+        slides.push({id:'s'+Date.now()+Math.random(), label:file.name, dataUrl:src});
+        processQueue(arr);
       }
     };
     img.src = src;
@@ -550,207 +239,142 @@ function processNext(arr) {
   reader.readAsDataURL(file);
 }
 
-/* ============================================================
-   CROP
-============================================================ */
-let cropImgEl, cropNatW, cropNatH, cropDispW, cropDispH;
-let overlayW, overlayH;
-
-function openCrop(src, imgEl, onDone) {
-  cropResolve = onDone;
-  cropImgEl = imgEl;
-  cropNatW = imgEl.naturalWidth;
-  cropNatH = imgEl.naturalHeight;
-
-  const modal = document.getElementById('cropModal');
+function openCrop(src, img, cb) {
+  cropCallback = cb; cropImgEl = img; cropNatW = img.naturalWidth; cropNatH = img.naturalHeight;
   const ci = document.getElementById('cropImg');
   ci.src = src;
-  ci.onload = () => {
-    cropDispW = ci.offsetWidth;
-    cropDispH = ci.offsetHeight;
-    initOverlay();
-  };
-  modal.classList.add('open');
+  ci.onload = () => { cropDispW = ci.offsetWidth; cropDispH = ci.offsetHeight; initOverlay(); };
+  document.getElementById('cropModal').classList.add('open');
 }
 
 function initOverlay() {
   cropDispW = document.getElementById('cropImg').offsetWidth;
   cropDispH = document.getElementById('cropImg').offsetHeight;
-  // Set overlay size based on ratio
-  overlayH = cropDispH;
-  overlayW = overlayH * (cropW / cropH);
-  if (overlayW > cropDispW) { overlayW = cropDispW; overlayH = overlayW * (cropH / cropW); }
-  overlayX = (cropDispW - overlayW) / 2;
-  overlayY = (cropDispH - overlayH) / 2;
+  overlayH = cropDispH; overlayW = overlayH * (cropW/cropH);
+  if (overlayW > cropDispW) { overlayW = cropDispW; overlayH = overlayW * (cropH/cropW); }
+  overlayX = (cropDispW-overlayW)/2; overlayY = (cropDispH-overlayH)/2;
   updateOverlay();
 }
 
-function setRatio(w, h, btn) {
-  cropW = w; cropH = h;
+function setRatio(w,h,btn) {
+  cropW=w; cropH=h;
   document.querySelectorAll('.ratio-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  initOverlay();
+  btn.classList.add('active'); initOverlay();
 }
 
 function updateOverlay() {
   const ov = document.getElementById('cropOverlay');
-  ov.style.left = overlayX + 'px';
-  ov.style.top = overlayY + 'px';
-  ov.style.width = overlayW + 'px';
-  ov.style.height = overlayH + 'px';
+  ov.style.cssText = `left:${overlayX}px;top:${overlayY}px;width:${overlayW}px;height:${overlayH}px;`;
 }
 
-// Drag to move overlay
-const wrapper = document.getElementById('cropWrapper');
-wrapper.addEventListener('mousedown', startDrag);
-wrapper.addEventListener('touchstart', e => { const t = e.touches[0]; startDrag({clientX:t.clientX,clientY:t.clientY}); });
-document.addEventListener('mousemove', moveDrag);
-document.addEventListener('touchmove', e => { const t = e.touches[0]; moveDrag({clientX:t.clientX,clientY:t.clientY}); }, {passive:true});
-document.addEventListener('mouseup', endDrag);
-document.addEventListener('touchend', endDrag);
-
-function startDrag(e) {
-  if (!document.getElementById('cropModal').classList.contains('open')) return;
-  isDragging = true;
-  dragStartX = e.clientX - overlayX;
-  dragStartY = e.clientY - overlayY;
-}
-function moveDrag(e) {
-  if (!isDragging) return;
-  overlayX = Math.max(0, Math.min(e.clientX - dragStartX, cropDispW - overlayW));
-  overlayY = Math.max(0, Math.min(e.clientY - dragStartY, cropDispH - overlayH));
-  updateOverlay();
-}
-function endDrag() { isDragging = false; }
+const wrap = document.getElementById('cropWrapper');
+wrap.addEventListener('mousedown', e=>{isDragging=true;dragSX=e.clientX-overlayX;dragSY=e.clientY-overlayY;});
+wrap.addEventListener('touchstart', e=>{const t=e.touches[0];isDragging=true;dragSX=t.clientX-overlayX;dragSY=t.clientY-overlayY;});
+document.addEventListener('mousemove', e=>{if(!isDragging)return;move(e.clientX,e.clientY);});
+document.addEventListener('touchmove', e=>{if(!isDragging)return;const t=e.touches[0];move(t.clientX,t.clientY);},{passive:true});
+document.addEventListener('mouseup',()=>isDragging=false);
+document.addEventListener('touchend',()=>isDragging=false);
+function move(cx,cy){overlayX=Math.max(0,Math.min(cx-dragSX,cropDispW-overlayW));overlayY=Math.max(0,Math.min(cy-dragSY,cropDispH-overlayH));updateOverlay();}
 
 function applyCrop() {
-  const ci = document.getElementById('cropImg');
-  const scaleX = cropNatW / cropDispW;
-  const scaleY = cropNatH / cropDispH;
-  const sx = overlayX * scaleX;
-  const sy = overlayY * scaleY;
-  const sw = overlayW * scaleX;
-  const sh = overlayH * scaleY;
+  const scX=cropNatW/cropDispW, scY=cropNatH/cropDispH;
+  const sx=overlayX*scX,sy=overlayY*scY,sw=overlayW*scX,sh=overlayH*scY;
+  const outW=1080,outH=Math.round(outW*(cropH/cropW));
+  offCanvas.width=outW;offCanvas.height=outH;
+  offCtx.drawImage(cropImgEl,sx,sy,sw,sh,0,0,outW,outH);
+  closeCropWith(offCanvas.toDataURL('image/jpeg',0.92));
+}
+function skipCrop(){closeCropWith(document.getElementById('cropImg').src);}
+function closeCropWith(dataUrl){document.getElementById('cropModal').classList.remove('open');if(cropCallback){cropCallback(dataUrl);cropCallback=null;}}
 
-  const outW = 1080;
-  const outH = Math.round(outW * (cropH / cropW));
-  offCanvas.width = outW;
-  offCanvas.height = outH;
-  offCtx.drawImage(cropImgEl, sx, sy, sw, sh, 0, 0, outW, outH);
-  const dataUrl = offCanvas.toDataURL('image/jpeg', 0.92);
-
-  slides.push({ id: 'img_'+Date.now(), label: 'トリミング済み', dataUrl, isLead: false });
-  closeCrop();
+function generateLastSlide(url, title) {
+  const W=1080,H=1350;
+  offCanvas.width=W;offCanvas.height=H;
+  const grad=offCtx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#1a0000');grad.addColorStop(1,'#000000');
+  offCtx.fillStyle=grad;offCtx.fillRect(0,0,W,H);
+  offCtx.fillStyle='#e8001c';offCtx.fillRect(0,0,W,14);
+  offCtx.beginPath();offCtx.arc(W/2,H*0.33,200,0,Math.PI*2);offCtx.fillStyle='rgba(232,0,28,0.07)';offCtx.fill();
+  offCtx.beginPath();offCtx.arc(W/2,H*0.33,150,0,Math.PI*2);offCtx.fillStyle='rgba(232,0,28,0.10)';offCtx.fill();
+  offCtx.fillStyle='#e8001c';offCtx.font='bold 130px sans-serif';offCtx.textAlign='center';offCtx.fillText('▶',W/2,H*0.33+50);
+  offCtx.fillStyle='#ffffff';offCtx.font='bold 74px sans-serif';offCtx.fillText('続きを読む',W/2,H*0.57);
+  offCtx.fillStyle='#999';offCtx.font='40px sans-serif';offCtx.fillText('プロフィールのリンクから',W/2,H*0.63);
+  offCtx.fillStyle='#f5c200';offCtx.font='bold 44px sans-serif';
+  wrapText(offCtx,title,W/2,H*0.75,W-140,58);
+  offCtx.fillStyle='rgba(255,255,255,0.07)';
+  roundRect(offCtx,60,H*0.87,W-120,78,12);offCtx.fill();
+  offCtx.fillStyle='#666';offCtx.font='30px monospace';
+  const su=url.replace('https://','').substring(0,48)+(url.length>53?'…':'');
+  offCtx.fillText(su,W/2,H*0.87+50);
+  offCtx.fillStyle='#e8001c';offCtx.fillRect(0,H-14,W,14);
+  return offCanvas.toDataURL('image/jpeg',0.92);
 }
 
-function skipCrop() {
-  // Add original
-  const ci = document.getElementById('cropImg');
-  slides.push({ id: 'img_'+Date.now(), label: 'オリジナル（横長）', dataUrl: ci.src, isLead: false });
-  closeCrop();
+function wrapText(ctx,text,x,y,maxW,lineH){
+  const chars=text.split('');let line='',lines=[];
+  for(let c of chars){const test=line+c;if(ctx.measureText(test).width>maxW){lines.push(line);line=c;}else line=test;}
+  if(line)lines.push(line);
+  const startY=y-(lines.length-1)*lineH/2;
+  lines.forEach((l,i)=>ctx.fillText(l,x,startY+i*lineH));
 }
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 
-function closeCrop() {
-  document.getElementById('cropModal').classList.remove('open');
-  renderSlideList();
-  updateExport();
-  if (cropResolve) { cropResolve(); cropResolve = null; }
-}
-
-/* ============================================================
-   SLIDE LIST RENDER
-============================================================ */
 function renderSlideList() {
-  const el = document.getElementById('slideList');
-  if (!slides.length) { el.innerHTML=''; return; }
-  el.innerHTML = slides.map((s,i) => `
-    <div class="slide-item" data-id="${s.id}">
-      <div class="slide-thumb">
-        ${s.isExternal
-          ? `<img src="${s.dataUrl}" onerror="this.parentNode.textContent='🖼️'" crossorigin="anonymous">`
-          : `<img src="${s.dataUrl}">`}
-      </div>
+  const el=document.getElementById('slideList');
+  if(!slides.length){el.innerHTML='';return;}
+  el.innerHTML=slides.map((s,i)=>`
+    <div class="slide-item${i===slides.length-1?' last':''}">
+      <div class="slide-thumb"><img src="${s.dataUrl}"></div>
       <div class="slide-info">
         <div class="slide-name">${i+1}枚目：${s.label}</div>
-        <div class="slide-tag">
-          ${s.isLead ? '<span style="color:var(--yellow)">⭐ リード画像</span>' : '📷 追加画像'}
-          ${s.isExternal ? '・号外NETから' : ''}
+        <div class="slide-tag${i===slides.length-1?' yl':''}">
+          ${i===slides.length-1?'🔗 この画像の後に「続きを読む」スライドが自動生成されます':'📷 通常スライド'}
         </div>
       </div>
       <button class="slide-del" onclick="removeSlide('${s.id}')">✕</button>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-function removeSlide(id) {
-  slides = slides.filter(s => s.id !== id);
-  renderSlideList();
-  updateExport();
-}
+function removeSlide(id){slides=slides.filter(s=>s.id!==id);renderSlideList();updateExport();}
 
-/* ============================================================
-   EXPORT / COPY
-============================================================ */
 function buildAndCopy() {
-  const title = document.getElementById('titleInput').value.trim();
-  const url = document.getElementById('articleUrl').value.trim();
-  const tags = document.getElementById('hashtagInput').value.trim();
-  const st = document.getElementById('copyStatus');
-
-  const caption = `${title}\n\n▶ 詳細はプロフィールのリンクから\n\n${url}\n\n${tags}`;
-  navigator.clipboard.writeText(caption).then(() => {
-    st.className='status ok';
-    st.textContent='✅ コピーしました！Instagramのキャプション欄に貼り付けてください。';
-    showToast('コピーしました！');
-    updateExport();
-  }).catch(()=>{
-    st.className='status err';
-    st.textContent='⚠ コピーに失敗しました。';
-  });
+  const title=document.getElementById('titleInput').value.trim();
+  const url=document.getElementById('articleUrl').value.trim();
+  const tags=document.getElementById('hashtagInput').value.trim();
+  const st=document.getElementById('copyStatus');
+  if(!title){st.className='status err';st.textContent='⚠ 記事タイトルを入力してください。';return;}
+  if(slides.length>0&&url){
+    slides=slides.filter(s=>!s.isAuto);
+    slides.push({id:'auto_'+Date.now(),label:'続きを読むスライド（自動生成）',dataUrl:generateLastSlide(url,title),isAuto:true});
+    renderSlideList();
+  }
+  const caption=`${title}\n\n▶ 詳細はプロフィールのリンクから\n\n${url}\n\n${tags}`;
+  navigator.clipboard.writeText(caption).then(()=>{
+    st.className='status ok';st.textContent='✅ コピーしました！Instagramのキャプション欄に貼り付けてください。';
+    showToast('コピーしました！');updateExport();
+  }).catch(()=>{st.className='status err';st.textContent='⚠ コピーに失敗しました。';});
 }
 
-function updateExport() {
-  const sec = document.getElementById('exportSection');
-  const prev = document.getElementById('exportPreview');
-  if (!slides.length) { sec.style.display='none'; return; }
+function updateExport(){
+  const sec=document.getElementById('exportSection');
+  const prev=document.getElementById('exportPreview');
+  if(!slides.length){sec.style.display='none';return;}
   sec.style.display='block';
-  prev.innerHTML = slides.map((s,i)=>`
-    <div class="export-slide">
-      <img src="${s.dataUrl}" onerror="this.style.opacity='0.3'">
-      <div class="slide-n">${i+1}枚目</div>
-    </div>
-  `).join('');
+  prev.innerHTML=slides.map((s,i)=>`
+    <div class="export-slide${s.isAuto?' last':''}">
+      <img src="${s.dataUrl}">
+      <div class="sn">${i+1}枚目${s.isAuto?'<br>🔗':''}</div>
+    </div>`).join('');
 }
 
-function downloadAll() {
-  slides.forEach((s, i) => {
-    if (s.isExternal) return; // can't download cross-origin
-    const a = document.createElement('a');
-    a.href = s.dataUrl;
-    a.download = `slide_${i+1}.jpg`;
-    a.click();
-  });
+function downloadAll(){
+  slides.forEach((s,i)=>{const a=document.createElement('a');a.href=s.dataUrl;a.download=`slide_${String(i+1).padStart(2,'0')}.jpg`;a.click();});
   showToast('ダウンロード開始！');
 }
 
-/* ============================================================
-   TOAST
-============================================================ */
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2200);
-}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
-/* ============================================================
-   INIT
-============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
-  buildBookmarklet();
-  // Reset file input after use
-  document.querySelector('input[type=file]').addEventListener('click', function(){ this.value=''; });
-});
+document.addEventListener('DOMContentLoaded',buildBookmarklet);
 </script>
 </body>
 </html>
